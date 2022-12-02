@@ -1,5 +1,9 @@
 package coreLibrary
 
+import coreLibrary.lib.CommandInfo
+import coreLibrary.lib.Commands
+import coreLibrary.lib.with
+
 val thisRef = this
 onEnable {
     Commands.controlCommand.run {

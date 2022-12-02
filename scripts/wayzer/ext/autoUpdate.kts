@@ -40,7 +40,7 @@ suspend fun download(url: String, file: File): Int = withContext(Dispatchers.IO)
                 output.write(buffer, 0, i)
                 len += i
                 if (logInterval[60f])
-                    logger.info("Downloaded ${len / 1024}KB")
+                    logger.info("Downloaded ${len}B")
             }
         }
     }

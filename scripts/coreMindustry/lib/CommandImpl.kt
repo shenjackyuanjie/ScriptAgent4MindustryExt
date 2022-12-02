@@ -138,11 +138,11 @@ class MyCommandHandler(private var prefix0: String, val origin: CommandHandler) 
 
     override fun handleMessage(raw: String?, params: Any?): CommandResponse {
         val message = raw?.let(RootCommands::trimInput)
-        if (message?.startsWith(prefix) != true || message.isEmpty())
+        if (message?.startsWith(prefix0) != true || message.isEmpty())
             return CommandResponse(ResponseType.noCommand, null, null)
         assert(params is Player?)
         thisContextScript().launch(Dispatchers.game) {
-            RootCommands.handleInput(raw, params as Player?, prefix)
+            RootCommands.handleInput(raw, params as Player?, prefix0)
         }
         return CommandResponse(ResponseType.valid, null, message)
     }

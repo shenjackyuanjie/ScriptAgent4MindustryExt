@@ -3,12 +3,19 @@
 package wayzer.user.ext
 
 import coreLibrary.DBApi.DB.registerTable
+import coreLibrary.lib.config
 import coreLibrary.lib.util.loop
+import coreLibrary.lib.with
+import coreMindustry.lib.*
+import mindustry.Vars.state
+import mindustry.gen.Call
 import mindustry.gen.Groups
+import mindustry.gen.Player
 import org.jetbrains.exposed.sql.Column
 import org.jetbrains.exposed.sql.transactions.TransactionManager
 import org.jetbrains.exposed.sql.transactions.transaction
 import org.jetbrains.exposed.sql.update
+import wayzer.lib.dao.PlayerProfile
 import java.time.Duration
 
 val enable by config.key(false, "是否开启本插件", "本脚本需要postgreSql作为数据库")
@@ -49,7 +56,7 @@ fun Player?.showRank(name: String, field: Column<Int>, week: Boolean, display: B
     val result = TransactionManager.current().exec(stmt).orEmpty()
     val msg = "==={name}===\n{list:\n}".with("name" to name, "list" to result)
     if (this?.con == null || !display)
-        sendMessage(msg, MsgType.InfoMessage)
+        this?.sendMessage(msg, MsgType.InfoMessage)
     else {
         val pos = positions[name]?.split(',')
         val x = pos?.getOrNull(0)?.toFloatOrNull() ?: 0f

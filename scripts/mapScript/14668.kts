@@ -3,8 +3,6 @@
 
 package mapScript
 
-import arc.graphics.Color
-import arc.graphics.Colors
 import arc.struct.ObjectIntMap
 import arc.util.Time
 import arc.util.Tmp

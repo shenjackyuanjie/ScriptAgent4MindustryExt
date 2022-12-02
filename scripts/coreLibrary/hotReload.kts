@@ -2,6 +2,8 @@ package coreLibrary
 
 import cf.wayzer.placehold.PlaceHoldApi.with
 import cf.wayzer.scriptAgent.registry.DirScriptRegistry
+import coreLibrary.lib.CommandInfo
+import coreLibrary.lib.Commands
 import java.nio.file.*
 
 var watcher: WatchService? = null

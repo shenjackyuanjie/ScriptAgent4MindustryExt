@@ -50,7 +50,7 @@ import kotlin.random.Random
 
 val voteService = contextScript<VoteService>()
 
-
+/*
 class PlayerObserver(id: EntityID<Int>) : IntEntity(id) {
     var profileId by T.profile
     var reason by T.reason
@@ -87,6 +87,7 @@ class PlayerObserver(id: EntityID<Int>) : IntEntity(id) {
         }
     }
 }
+*/
 
 data class AssignTeamEvent(val player: Player, val group: Iterable<Player>, val oldTeam: Team?) : Event,
     Event.Cancellable {
@@ -255,6 +256,20 @@ fun VoteService.register() {
             broadcast("[green]回档成功".with(), quite = true)
         }
     }
+    //uuid -> ?
+    fun uname(uuid: String): String? {
+        Groups.player.find { it.uuid() == uuid }?.let {
+            return it.name
+        }
+        return ""
+    }
+
+    fun up(uuid: String): Player {
+        Groups.player.find { it.uuid() == uuid }?.let {
+            return it
+        }
+        return Vars.player
+    }
     //ban
     fun ban(uuid: String, time: Int, reason: String) {
         launch(Dispatchers.IO) {
@@ -262,6 +277,10 @@ fun VoteService.register() {
                 Groups.player.find { it.uuid() == uuid }?.let {
                     if (it.uuid() == "FzCaAjh/Do8AAAAA9LRoUA==") {
                         broadcast("[sky]被踢的对象是cong,由于测试用途,无法踢出".with())
+                        return@let
+                    }
+                    if (it.admin()) {
+                        broadcast("[scarlet]被踢的对象是管理,无法踢出".with())
                         return@let
                     }
                     it.kick(
@@ -286,14 +305,14 @@ fun VoteService.register() {
         }
     }
     //ob
-    registerTable(PlayerObserver.T)
     fun observer(uuid: String, time: Int, reason: String) {
         launch(Dispatchers.IO) {
             Groups.player.find { it.uuid() == uuid }?.let {
-                /*if (it.uuid()=="FzCaAjh/Do8AAAAA9LRoUA=="){
-                    broadcast("[sky]被踢的对象是cong,由于测试用途,无法ob".with())
+                if (it.uuid() == "FzCaAjh/Do8AAAAA9LRoUA=="
+                ) {
+                    broadcast("[sky]对象是cong,由于测试用途,无法ob".with())
                     return@let
-                }*/
+                }
                 changeTeam(it, spectateTeam)
                 if (reason == "") {
                     broadcast("[red]投票ob了{target.name}".with("target" to it))
@@ -308,38 +327,7 @@ fun VoteService.register() {
             }
         }
     }
-    listen<EventType.PlayerConnect> {
-        val profile = PlayerData.findById(it.player.uuid())?.profile ?: return@listen
-        launch(Dispatchers.IO) {
-            val ob = transaction { PlayerObserver.findNotEnd(profile.id) } ?: return@launch
-            withContext(Dispatchers.game) {
-                changeTeam(it.player, spectateTeam)
-            }
-        }
-    }
-    listen<ChangeTeamEvent> {
-        val profile = PlayerData.findById(it.player.uuid())?.profile ?: return@listen
-        launch(Dispatchers.IO) {
-            val ob = transaction { PlayerObserver.findNotEnd(profile.id) } ?: return@launch
-            withContext(Dispatchers.game) {
-                changeTeam(it.player, spectateTeam)
-            }
-        }
-    }
-    //uuid -> ?
-    fun uname(uuid: String): String? {
-        Groups.player.find { it.uuid() == uuid }?.let {
-            return it.name
-        }
-        return ""
-    }
 
-    fun up(uuid: String): Player {
-        Groups.player.find { it.uuid() == uuid }?.let {
-            return it
-        }
-        return Vars.player
-    }
 
     addSubVote("踢出某人15分钟", "<玩家名/3位id> <踢人理由>", "kick", "踢出") {
         val uuid = netServer.admins.getInfoOptional(arg[0])?.id

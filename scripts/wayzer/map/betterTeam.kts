@@ -13,8 +13,6 @@ import mindustry.gen.Groups
 import mindustry.gen.Player
 import mindustry.world.blocks.storage.CoreBlock
 
-name = "更好的队伍"
-
 data class AssignTeamEvent(val player: Player, val group: Iterable<Player>, val oldTeam: Team?) : Event,
     Event.Cancellable {
     var team: Team? = oldTeam
@@ -114,7 +112,6 @@ fun changeTeam(p: Player, team: Team = randomTeam(p)) {
     p.clearUnit()
 }
 
-export(::changeTeam)
 command("team", "管理指令: 修改自己或他人队伍(PVP模式)") {
     usage = "[队伍,不填列出] [玩家3位id,默认自己]"
     permission = "wayzer.ext.team.change"

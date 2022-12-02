@@ -225,3 +225,29 @@ skill("flood", "技能: 生成一个泉眼，冷却0.2秒", "flooooooood") {
 
     broadcastSkill("flooooooood!")
 }
+
+skill("defend", "帝君，痛痛，盾盾", "defend!") {
+    checkOrSetCoolDown(20)
+    checkNotPvp()
+
+    val unit = player.unit()
+
+
+    for(x in -0..0){
+        for(y in -0..0){
+
+            val tile = world.tiles.get(
+                unit.tileX() + x,
+                unit.tileY() + y
+            )
+
+            world.tiles.getc(unit.tileX() + x, unit.tileY() + y).apply {
+                if (block() == Blocks.air){
+                    tile?.setNet(Blocks.largeShieldProjector, Team.sharded, 0)
+                }
+            }
+
+        }
+    }
+    broadcastSkill("defend!")
+}

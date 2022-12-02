@@ -7,7 +7,7 @@ package coreLibrary.lib
  * 用于定义脚本的配置项
  * 配置项可在文件中或者使用指令修改
  * @sample
- * val welcomeMsg by config.key("Hello Steve","The message show when player join")
+ * val welcomeMsg by config.key("teaching.Hello Steve","The message show when player join")
  * println(welcomeMsg)
  */
 import cf.wayzer.scriptAgent.Event

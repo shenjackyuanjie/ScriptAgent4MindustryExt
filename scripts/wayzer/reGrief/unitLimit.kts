@@ -1,11 +1,25 @@
+@file:Depends("wayzer/maps", "地图管理")
+
 package wayzer.reGrief
 
+import arc.Core
 import arc.Events
 import arc.util.Interval
+import coreLibrary.lib.PlaceHoldString
+import coreLibrary.lib.config
+import coreLibrary.lib.with
+import coreMindustry.lib.MsgType
+import coreMindustry.lib.broadcast
+import coreMindustry.lib.gamePost
+import coreMindustry.lib.listen
+import mindustry.Vars.spawner
+import mindustry.Vars.state
+import mindustry.game.EventType
 import mindustry.gen.BuildingTetherc
 import mindustry.gen.Groups
 import mindustry.gen.TimedKillc
 import mindustry.gen.Unit
+import wayzer.MapManager
 import kotlin.math.min
 
 val unitToWarn by config.key(190, "开始警告的单位数")
@@ -49,12 +63,14 @@ listen<EventType.UnitUnloadEvent> { e ->
 
 listen<EventType.UnitSpawnEvent> { e ->
     if (e.unit.team.data().unitCount > 5000 && !state.gameOver) {
-        broadcast("[red]敌方单位超过5000,自动投降".with())
-        state.gameOver = true
-        Events.fire(EventType.GameOverEvent(state.rules.waveTeam))
-        Core.app.post {
-            Groups.unit.filter { it.team == state.rules.waveTeam }.forEach(Unit::kill)
-        }
+        broadcast("[red]检测到大量单位,自动换图".with())
+        MapManager.loadMap()
+    }
+}
+listen<EventType.WorldLoadEvent> { e ->
+    if (Groups.unit.count() > 5000 && !state.gameOver) {
+        broadcast("[red]检测到大量单位,自动换图".with())
+        MapManager.loadMap()
     }
 }
 
