@@ -269,3 +269,4 @@ command("votekick", "(弃用)投票踢人") {
         voteCommands.invoke(this)
     }
 }
+export(::voteCommands)
