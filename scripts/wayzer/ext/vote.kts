@@ -9,8 +9,9 @@ package wayzer.ext
 
 import arc.Core
 import arc.Events
+import arc.files.Fi
+import arc.struct.StringMap
 import arc.util.Time
-import coreLibrary.DBApi.DB.registerTable
 import coreLibrary.lib.PermissionApi
 import coreLibrary.lib.PlaceHold
 import coreLibrary.lib.with
@@ -24,26 +25,13 @@ import mindustry.gen.Groups
 import mindustry.gen.Player
 import mindustry.io.SaveIO
 import mindustry.world.blocks.storage.CoreBlock
-import org.jetbrains.exposed.dao.IntEntity
-import org.jetbrains.exposed.dao.IntEntityClass
-import org.jetbrains.exposed.dao.id.EntityID
-import org.jetbrains.exposed.dao.id.IntIdTable
-import org.jetbrains.exposed.sql.SqlExpressionBuilder.greater
-import org.jetbrains.exposed.sql.and
-import org.jetbrains.exposed.sql.javatime.CurrentTimestamp
-import org.jetbrains.exposed.sql.javatime.timestamp
-import org.jetbrains.exposed.sql.transactions.transaction
 import wayzer.MapManager
 import wayzer.MapRegistry
 import wayzer.VoteService
 import wayzer.ext.Vote.AssignTeamEvent
-import wayzer.lib.dao.PlayerData
-import wayzer.lib.dao.PlayerProfile
-import wayzer.lib.dao.util.NeedTransaction
-import java.text.DateFormat
-import java.time.Duration
 import java.time.Instant
 import java.util.*
+import java.util.logging.Level
 import kotlin.math.min
 import kotlin.random.Random
 
@@ -365,6 +353,61 @@ fun VoteService.register() {
             //reply(if(reason == ""){"[red]ob了[red]{name}[yellow]"}else{"\nob[red]{name}[yellow]\n原因是[sky]{reason}\n"}.with("reason" to reason,"name" to uname(uuid).toString()))
         }
     }
+
+    fun save(name:Int) {
+        Core.app.post {
+            val tmp = Fi.tempFile("save")
+            try {
+                val extTag = StringMap.of(
+                    "name", "[回档$name]" + state.map.name(),
+                    "description", state.map.description(),
+                    "author", state.map.author(),
+                )
+                SaveIO.write(tmp, extTag)
+                tmp.moveTo(SaveIO.fileFor(name))
+            } catch (e: Exception) {
+                logger.log(Level.SEVERE, "存档存档出错", e)
+                tmp.delete()
+            }
+            broadcast("[green]存档完成,存档号:[red]{name}".with("name" to name))
+        }
+    }
+
+
+    addSubVote("保存存档", "[存档号]", "saving", "保存", "save") {
+        if (arg.firstOrNull()?.toIntOrNull() == null) {
+            returnReply("[red]请输入想保存的存档编号".with())
+        }else if (arg.first().toInt() !in 1..99){
+            returnReply("[red]存档编号应在0-99内".with())
+        }
+        else {
+            start(player!!, "存档:${arg.first().toInt()}".with(), supportSingle = true) {
+                save(arg.first().toInt())
+                broadcast("[green]存档成功".with(), quite = true)
+            }
+        }
+    }
+
+    fun deleteSave(name:Int) {
+        Core.app.post {
+            SaveIO.fileFor(name).delete()
+            broadcast("[green]删档完成,存档号:[red]{name}".with("name" to name))
+        }
+    }
+
+    addSubVote("删除存档", "[存档号]", "del", "删除", "delSave") {
+        if (arg.firstOrNull()?.toIntOrNull() == null) {
+            returnReply("[red]请输入想删除的存档编号".with())
+        }else if (arg.first().toInt() !in 1..99){
+            returnReply("[red]存档编号应在1-99内".with())
+        }else {
+            start(player!!, "删除存档:${arg.first().toInt()}".with(), supportSingle = true) {
+                deleteSave(arg.first().toInt())
+                broadcast("[green]删档成功".with(), quite = true)
+            }
+        }
+    }
+
 }
 
 onEnable {
@@ -372,27 +415,3 @@ onEnable {
 }
 
 PermissionApi.registerDefault("wayzer.vote.*")
-
-
-command("ob", "切换为观察者") {
-    type = CommandType.Client
-    permission = "wayzer.ext.observer"
-    body {
-        if (player!!.team() == spectateTeam) {
-            teams.remove(player!!.uuid())
-            changeTeam(player!!)
-            broadcast(
-                "[yellow]玩家[green]{player.name}[yellow]重新投胎到{player.team.colorizeName}"
-                    .with("player" to player!!), type = MsgType.InfoToast, quite = true
-            )
-        } else {
-            changeTeam(player!!, spectateTeam)
-            broadcast(
-                "[yellow]玩家[green]{player.name}[yellow]选择成为观察者"
-                    .with("player" to player!!), type = MsgType.InfoToast, quite = true
-            )
-            player!!.sendMessage("[green]再次输入指令可以重新投胎")
-        }
-    }
-}
-

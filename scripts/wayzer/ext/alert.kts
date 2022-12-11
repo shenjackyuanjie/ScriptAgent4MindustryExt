@@ -1,5 +1,10 @@
 package wayzer.ext
 
+import coreLibrary.lib.config
+import coreLibrary.lib.with
+import coreMindustry.lib.MsgType
+import coreMindustry.lib.broadcast
+import coreMindustry.lib.game
 import java.time.Duration
 
 val type by config.key(MsgType.InfoMessage, "发送方式")

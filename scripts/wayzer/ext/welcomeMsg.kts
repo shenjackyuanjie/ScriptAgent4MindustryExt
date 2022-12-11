@@ -2,16 +2,14 @@
 
 package wayzer.ext
 
-import arc.*
-import arc.struct.*
-import arc.util.*
+import arc.util.Align
 import cf.wayzer.placehold.PlaceHoldApi.with
 import coreLibrary.lib.config
 import coreMindustry.lib.*
 import mindustry.Vars.dataDirectory
 import mindustry.game.EventType
-import mindustry.game.EventType.*
-import mindustry.gen.*
+import mindustry.gen.Call
+import mindustry.gen.Player
 import mindustry.net.Administration
 
 
