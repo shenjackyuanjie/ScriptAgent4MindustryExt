@@ -13,10 +13,14 @@
 > including vote/map/permission/level/bot and much more (all essitials for server)
 
 ## 使用方法
-》可以快速,稳定地开一个服务器
+》可以快速,稳定地开一个服务器  
+
 首先,从 https://github.com/TinyLake/MindustryX/releases 获取最新的服务端jar  
 
 然后,获取本项目,并改名为config  
 
 最后,java -jar server-release.jar  
 
+》可以方便地开始编辑插件
+
+打开idea,并clone本项目
